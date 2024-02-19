@@ -14,7 +14,7 @@ type RuleGroup struct {
 type Rule struct {
 	Record      string            `yaml:"record,omitempty"`
 	Alert       string            `yaml:"alert,omitempty"`
-	Expr        string            `yaml:expr`
+	Expr        string            `yaml:"expr"`
 	For         string            `yaml:"for,omitempty"`
 	Labels      map[string]string `yaml:"labels,omitempty"`
 	Annotations map[string]string `yaml:"annotations,omitempty"`

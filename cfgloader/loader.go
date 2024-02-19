@@ -69,6 +69,9 @@ func buildRuleName(fileName, prometheus string) string {
 // nil, working, or in a broken state.
 func LoadConfigurationFile(name, namespace, prometheus string) (*v1.PrometheusRule, error) {
 	f, err := os.Open(name)
+	if err != nil {
+        return nil, err
+    }
 	defer f.Close()
 	if err != nil {
 		return nil, err

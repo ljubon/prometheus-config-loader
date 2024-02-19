@@ -2,13 +2,14 @@ package templates
 
 import (
 	"fmt"
-	yaml "gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 	"text/template"
+
+	yaml "gopkg.in/yaml.v2"
 )
 
 // TemplateData contains various information about template expansions
@@ -210,30 +211,44 @@ func expandDirectory(context string, data internalTemplate) (TemplateData, error
 		}
 	}
 
-	os.Mkdir(filepath.Join(outDir, "tests"), 0777)
+	if err := os.Mkdir(filepath.Join(outDir, "tests"), 0777); err != nil {
+		fmt.Printf("Error creating file %v with error %s", outDir, err)
+	}
+	if err := os.Mkdir(filepath.Join(outDir, "tests"), 0777); err != nil {
+		fmt.Printf("Error creating file %v with error %s", outDir, err)
+	}
 	testFiles, err := filepath.Glob(filepath.Join(data.sourceDir, "tests", "*.yaml"))
 	if err != nil {
 		return rv, err
 	}
 	for _, file := range testFiles {
 		source, err := os.Open(file)
+		if err != nil {
+			return rv, err
+		}
 		defer source.Close()
 		if err != nil {
 			return rv, err
 		}
 		sink, err := os.Create(filepath.Join(outDir, "tests", filepath.Base(file)))
+		if err != nil {
+			return rv, err
+		}
 		defer sink.Close()
 		if err != nil {
 			return rv, err
 		}
-		io.Copy(sink, source)
+		if _, err := io.Copy(sink, source); err != nil {
+			fmt.Printf("Error copying with %s", err)
+		}
+
 		rv.Files = append(rv.Files, filepath.Join("tests", filepath.Base(file)))
 	}
 
 	return rv, nil
 }
 
-// Clean up the output from a template expansion
+// Cleanup the output from a template expansion
 func (t TemplateData) Cleanup() {
 	os.RemoveAll(t.Directory)
 }
