@@ -1,10 +1,16 @@
 name: CI
 
-on: [push, pull_request]
+on: 
+  push:
+  pull_request:
 
 jobs:
+  lint:
+    uses: ./.github/workflows/lint.yaml
+
   test:
     runs-on: ubuntu-latest
+    needs: [lint]
     strategy:
       matrix:
         go-version: [ '1.19', '1.20', '1.21.x' ]
@@ -15,4 +21,16 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
       - name: Run Go test
+        run: go test ./cfgloader
+
+  build:
+    needs: [test]
+    name: "Build"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+      - name: Build
+        run: go build ./cfgloader
+      - name: Test
         run: go test ./cfgloader
